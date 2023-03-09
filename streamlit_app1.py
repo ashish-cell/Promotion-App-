@@ -121,7 +121,7 @@ disc_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "median", add_indi
                               ("disc", KBinsDiscretizer(strategy= "equal_width", encode = "ordinal"))]) 
 
 nom_cat_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "constant", fill_value = "missing")), 
-                                 ("ohe", OneHotEncoder(sparse_output=False)),])  
+                                 ("ohe", OneHotEncoder(sparse=False)),])  
 
 
 ord_cat_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "most_frequent", add_indicator = True)), 
