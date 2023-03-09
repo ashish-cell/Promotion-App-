@@ -128,7 +128,7 @@ ord_cat_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "most_frequent"
                                  ("ord", OrdinalEncoder())])  
 
 
-rare_cat_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "constant", fill_value = "rare")), ("rare", RareLabelEncoder(tol=0.05, n_categories=4)), ("ohe", OneHotEncoder(sparse_output=False))])  
+rare_cat_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "constant", fill_value = "rare")), ("rare", RareLabelEncoder(tol=0.05, n_categories=4)), ("ohe", OneHotEncoder(sparse=False))])  
 
 nom_cat_vars = ['department','region', 'gender','recruitment_channel']
 
