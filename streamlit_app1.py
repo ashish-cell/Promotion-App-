@@ -23,18 +23,18 @@ import csv
 
 conn = sqlite3.connect('data.db',check_same_thread=False)
 cur = conn.cursor()
+# cur.execute('DROP TABLE IF EXISTS app_form')
 cur.execute("""create table if not exists app_form(employee_id text(10),department text(20),region text(20),education text(20),gender text(1),recruitment_channel text(20),
-    no_of_trainings int, age int, previous_year_rating int,length_of_service int, KPIs_met int,awards_won int, avg_training_score int,is_promoted int,feedback text(5));""")
-
+    no_of_trainings int, age int, previous_year_rating int,length_of_service int, KPIs_met int,awards_won int, avg_training_score int,is_promoted int);""")
 cur.execute("""create table if not exists result_form(employee_id text(10),actual_output int);""")
 conn.commit()
 
-def addData(employee_id,department,region,education,gender,recruitment_channel,no_of_trainings,age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,is_promoted,feedback):
+def addData(employee_id,department,region,education,gender,recruitment_channel,no_of_trainings,age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,is_promoted):
 	# cur.execute("""create table if not exists app_form(employee_id text(10),department text(20),region text(20),education text(20),gender text(1),recruitment_channel text(20),
     # no_of_trainings int, age int, previous_year_rating int,length_of_service int, KPIs_met int,awards_won int, avg_training_score int,is_promoted int,feedback text(5));""")
 	# st.write("""create table if not exists clg_form(name text(10),q1 text(10),q2 text(10),q3 text(10),q4 text(10),q5 text(10));""")
 	# st.write("INSERT INTO clg_form values"+str((name,a[0],b[0],c[0],d[0],e[0])))
-	cur.execute("INSERT INTO app_form values"+str((employee_id,department,region,education,gender,recruitment_channel,no_of_trainings,age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,is_promoted,feedback))+';')
+	cur.execute("INSERT INTO app_form values"+str((employee_id,department,region,education,gender,recruitment_channel,no_of_trainings,age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,is_promoted))+';')
 	conn.commit()
 	st.success('Successfully submitted')
 
@@ -203,7 +203,7 @@ st.write('Enter the Values : ')
 # st.write(prediction)
 
 # Create a form
-
+global p 
 def main_page():
     st.markdown("# Enter your values ")
     st.sidebar.markdown("# Page 1")
@@ -239,33 +239,26 @@ def main_page():
 
 
         submit_button = st.form_submit_button(label='Submit')
-
+        
 
     # Process the form submission
-    p = ' '
     if submit_button:
         data = pd.DataFrame({'department':[department],'region':[region],'education':[education],'gender':[gender],'recruitment_channel':[recruitment_channel],'no_of_trainings':[no_of_trainings],'age':[age],'previous_year_rating':[previous_year_rating],'length_of_service':[length_of_service],'KPIs_met >80%':[KPIs_met],'awards_won?':[awards_won],'avg_training_score':[avg_training_score]})
         prediction = model_pipe_1.predict(data)
         p = prediction[0]
-        st.write(prediction)
-        
-    with st.form(key='Feedback'):
-        # Add a text input
-        feedback = st.radio(label='Enter the feedback : is the output correct or not ?', options=['Yes', 'No',])
-
-        submit_btn = st.form_submit_button(label='Submit')
-    if submit_btn:
-        st.write('Your feedback is : '+ str(feedback))
-        addData(employee_id ,department,region, education,gender, recruitment_channel, no_of_trainings, age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,p,feedback)
-
+        print(p)
+        st.write(p)
+        st.write(' Thank You !')
+        addData(employee_id ,department,region, education,gender, recruitment_channel, no_of_trainings, age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,p)
+            
     # conn = sqlite3.connect('data.db',check_same_thread=False)
-    SQL_Query = pd.read_sql_query(
-            '''select
-            *
-            from app_form''', conn)
+    # SQL_Query = pd.read_sql_query(
+    #         '''select
+    #         *
+    #         from app_form''', conn)
 
-    df = pd.DataFrame(SQL_Query, columns=['employee_id','department','region','education','gender','recruitment_channel','no_of_trainings','age','previous_year_rating','length_of_service','KPIs_met,awards_won','avg_training_score','is_promoted','feedback'])
-    print(df)
+    # df = pd.DataFrame(SQL_Query, columns=['employee_id','department','region','education','gender','recruitment_channel','no_of_trainings','age','previous_year_rating','length_of_service','KPIs_met,awards_won','avg_training_score','is_promoted'])
+    # print(df)
 
 def page2():
     st.markdown("# Actual Data")
@@ -309,10 +302,15 @@ def page3():
             *
             from app_form''', conn)
 
-    df2 = pd.DataFrame(SQL_Query2, columns=['employee_id','department','region','education','gender','recruitment_channel','no_of_trainings','age','previous_year_rating','length_of_service','KPIs_met,awards_won','avg_training_score','is_promoted','feedback'])
+    df2 = pd.DataFrame(SQL_Query2, columns=['employee_id','department','region','education','gender','recruitment_channel','no_of_trainings','age','previous_year_rating','length_of_service','KPIs_met,awards_won','avg_training_score','is_promoted'])
     print(df2)
     st.write(df2)
-
+    merged_df = pd.merge(df, df2, on=['employee_id'])
+    df_no_duplicates = merged_df.drop_duplicates()
+    st.write(df_no_duplicates)
+    train_accuracy = accuracy_score(df_no_duplicates['actual_output'], df_no_duplicates['is_promoted'])
+    st.write('Accuracy is : ')
+    st.write(train_accuracy)
 page_names_to_funcs = {
     "Main Page": main_page,
     "Page 2": page2,
