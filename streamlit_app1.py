@@ -20,10 +20,13 @@ from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve, confusion_
 from sklearn.model_selection import train_test_split
 import sqlite3
 import csv
+
 conn = sqlite3.connect('data.db',check_same_thread=False)
 cur = conn.cursor()
 cur.execute("""create table if not exists app_form(employee_id text(10),department text(20),region text(20),education text(20),gender text(1),recruitment_channel text(20),
     no_of_trainings int, age int, previous_year_rating int,length_of_service int, KPIs_met int,awards_won int, avg_training_score int,is_promoted int,feedback text(5));""")
+
+cur.execute("""create table if not exists result_form(employee_id text(10),actual_output int);""")
 conn.commit()
 
 def addData(employee_id,department,region,education,gender,recruitment_channel,no_of_trainings,age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,is_promoted,feedback):
@@ -33,7 +36,17 @@ def addData(employee_id,department,region,education,gender,recruitment_channel,n
 	# st.write("INSERT INTO clg_form values"+str((name,a[0],b[0],c[0],d[0],e[0])))
 	cur.execute("INSERT INTO app_form values"+str((employee_id,department,region,education,gender,recruitment_channel,no_of_trainings,age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,is_promoted,feedback))+';')
 	conn.commit()
-	conn.close()
+	st.success('Successfully submitted')
+
+
+        
+def addData2(employee_id,actual_output):
+	# cur.execute("""create table if not exists app_form(employee_id text(10),department text(20),region text(20),education text(20),gender text(1),recruitment_channel text(20),
+    # no_of_trainings int, age int, previous_year_rating int,length_of_service int, KPIs_met int,awards_won int, avg_training_score int,is_promoted int,feedback text(5));""")
+	# st.write("""create table if not exists clg_form(name text(10),q1 text(10),q2 text(10),q3 text(10),q4 text(10),q5 text(10));""")
+	# st.write("INSERT INTO clg_form values"+str((name,a[0],b[0],c[0],d[0],e[0])))
+	cur.execute("INSERT INTO result_form values"+str((employee_id,actual_output))+';')
+	conn.commit()
 	st.success('Successfully submitted')
 
 
@@ -121,14 +134,14 @@ disc_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "median", add_indi
                               ("disc", KBinsDiscretizer(strategy= "equal_width", encode = "ordinal"))]) 
 
 nom_cat_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "constant", fill_value = "missing")), 
-                                 ("ohe", OneHotEncoder(sparse=False)),])  
+                                 ("ohe", OneHotEncoder(sparse_output=False)),])  
 
 
 ord_cat_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "most_frequent", add_indicator = True)), 
                                  ("ord", OrdinalEncoder())])  
 
 
-rare_cat_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "constant", fill_value = "rare")), ("rare", RareLabelEncoder(tol=0.05, n_categories=4)), ("ohe", OneHotEncoder(sparse=False))])  
+rare_cat_pipe = Pipeline(steps = [("imp", SimpleImputer(strategy= "constant", fill_value = "rare")), ("rare", RareLabelEncoder(tol=0.05, n_categories=4)), ("ohe", OneHotEncoder(sparse_output=False))])  
 
 nom_cat_vars = ['department','region', 'gender','recruitment_channel']
 
@@ -190,65 +203,126 @@ st.write('Enter the Values : ')
 # st.write(prediction)
 
 # Create a form
-with st.form(key='my_form'):
+
+def main_page():
+    st.markdown("# Enter your values ")
+    st.sidebar.markdown("# Page 1")
+    with st.form(key='my_form'):
     # Add a text input
-    employee_id = st.text_input(label='Enter your employee_id : ')
+        employee_id = st.text_input(label='Enter your employee_id : ')
 
-    department = st.text_input(label='Enter your department : ')
+        department = st.text_input(label='Enter your department : ')
 
-    region = st.text_input(label='Enter your region : ')
+        region = st.text_input(label='Enter your region : ')
 
-    education = st.text_input(label='Enter your education qualifications : ')
+        education = st.text_input(label='Enter your education qualifications : ')
 
-    # Add a radio button input
-    gender = st.radio(label='Select your gender', options=['m', 'f',])
+        # Add a radio button input
+        gender = st.radio(label='Select your gender', options=['m', 'f',])
 
-    recruitment_channel = st.text_input(label='Enter the recruitment channel : ')
+        recruitment_channel = st.text_input(label='Enter the recruitment channel : ')
 
-    no_of_trainings = st.number_input('Enter the no of trainings : ', min_value=0.0, max_value=10.0, value=1.0, step=1.0)
+        no_of_trainings = st.number_input('Enter the no of trainings : ', min_value=0.0, max_value=10.0, value=1.0, step=1.0)
 
-    age = st.number_input("Enter your age:", min_value=0, max_value=100, value=50, step=1)
+        age = st.number_input("Enter your age:", min_value=0, max_value=100, value=50, step=1)
 
-    previous_year_rating = st.number_input("Enter the previous year rating:", min_value=1, max_value=5, value=1, step=1)
+        previous_year_rating = st.number_input("Enter the previous year rating:", min_value=1, max_value=5, value=1, step=1)
 
-    length_of_service = st.number_input("Enter the length of service:", min_value=1, max_value=50, value=1, step=1)
+        length_of_service = st.number_input("Enter the length of service:", min_value=1, max_value=50, value=1, step=1)
 
-    KPIs_met = st.number_input("Enter KPIs met:", min_value=0.0, max_value=1.0, value=0.0, step=0.1)
+        KPIs_met = st.number_input("Enter KPIs met:", min_value=0.0, max_value=1.0, value=0.0, step=0.1)
 
-    awards_won= st.number_input("Enter the number of awards won :", min_value=0, max_value=5, value=1, step=1)
+        awards_won= st.number_input("Enter the number of awards won :", min_value=0, max_value=5, value=1, step=1)
 
-    avg_training_score = st.number_input("Enter an avg_training_score  :", min_value=1, max_value=100, value=1, step=1)
-    # Add a submit button
-
-
-    submit_button = st.form_submit_button(label='Submit')
+        avg_training_score = st.number_input("Enter an avg_training_score  :", min_value=1, max_value=100, value=1, step=1)
+        # Add a submit button
 
 
-# Process the form submission
-p = ' '
-if submit_button:
-    data = pd.DataFrame({'department':[department],'region':[region],'education':[education],'gender':[gender],'recruitment_channel':[recruitment_channel],'no_of_trainings':[no_of_trainings],'age':[age],'previous_year_rating':[previous_year_rating],'length_of_service':[length_of_service],'KPIs_met >80%':[KPIs_met],'awards_won?':[awards_won],'avg_training_score':[avg_training_score]})
-    prediction = model_pipe_1.predict(data)
-    p= prediction[0]
-    st.write(prediction)
-    
-with st.form(key='Feedback'):
+        submit_button = st.form_submit_button(label='Submit')
+
+
+    # Process the form submission
+    p = ' '
+    if submit_button:
+        data = pd.DataFrame({'department':[department],'region':[region],'education':[education],'gender':[gender],'recruitment_channel':[recruitment_channel],'no_of_trainings':[no_of_trainings],'age':[age],'previous_year_rating':[previous_year_rating],'length_of_service':[length_of_service],'KPIs_met >80%':[KPIs_met],'awards_won?':[awards_won],'avg_training_score':[avg_training_score]})
+        prediction = model_pipe_1.predict(data)
+        p = prediction[0]
+        st.write(prediction)
+        
+    with st.form(key='Feedback'):
+        # Add a text input
+        feedback = st.radio(label='Enter the feedback : is the output correct or not ?', options=['Yes', 'No',])
+
+        submit_btn = st.form_submit_button(label='Submit')
+    if submit_btn:
+        st.write('Your feedback is : '+ str(feedback))
+        addData(employee_id ,department,region, education,gender, recruitment_channel, no_of_trainings, age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,p,feedback)
+
+    # conn = sqlite3.connect('data.db',check_same_thread=False)
+    SQL_Query = pd.read_sql_query(
+            '''select
+            *
+            from app_form''', conn)
+
+    df = pd.DataFrame(SQL_Query, columns=['employee_id','department','region','education','gender','recruitment_channel','no_of_trainings','age','previous_year_rating','length_of_service','KPIs_met,awards_won','avg_training_score','is_promoted','feedback'])
+    print(df)
+
+def page2():
+    st.markdown("# Actual Data")
+    st.sidebar.markdown("# Page 2 ")
+    with st.form(key='my_form'):
     # Add a text input
-    feedback = st.radio(label='Enter the feedback : is the output correct or not ?', options=['Yes', 'No',])
+        employee_id = st.text_input(label='Enter your employee_id : ')
+        actual_output = st.number_input("Enter the actual output:", min_value=0, max_value=1, value=0, step=1)
+        submit_button = st.form_submit_button(label='Submit')
 
-    submit_btn = st.form_submit_button(label='Submit')
-if submit_btn:
-    st.write('Your feedback is : '+ str(feedback))
-    addData(employee_id ,department,region, education,gender, recruitment_channel, no_of_trainings, age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,p,feedback)
+    if submit_button:
+        addData2(employee_id , actual_output)
 
-conn = sqlite3.connect('data.db',check_same_thread=False)
-SQL_Query = pd.read_sql_query(
-        '''select
-          *
-          from app_form''', conn)
+    conn = sqlite3.connect('data.db',check_same_thread=False)
+    SQL_Query = pd.read_sql_query(
+            '''select
+            *
+            from result_form''', conn)
 
-df = pd.DataFrame(SQL_Query, columns=['employee_id','department','region','education','gender','recruitment_channel','no_of_trainings','age','previous_year_rating','length_of_service','KPIs_met,awards_won','avg_training_score','is_promoted','feedback'])
-print(df)
+    df = pd.DataFrame(SQL_Query, columns=['employee_id','actual_output'])
+    print(df)
+    st.write(df)
+
+
+def page3():
+    st.markdown("# Monitioring Page")
+    st.sidebar.markdown("# Page 3 ")
+    st.write('Actual data : ')
+    SQL_Query1 = pd.read_sql_query(
+            '''select
+            *
+            from result_form''', conn)
+
+    df = pd.DataFrame(SQL_Query1, columns=['employee_id','actual_output'])
+    print(df)
+    st.write(df)
+    # conn = sqlite3.connect('data.db',check_same_thread=False)
+    st.write('Database data : ')
+    SQL_Query2 = pd.read_sql_query(
+            '''select
+            *
+            from app_form''', conn)
+
+    df2 = pd.DataFrame(SQL_Query2, columns=['employee_id','department','region','education','gender','recruitment_channel','no_of_trainings','age','previous_year_rating','length_of_service','KPIs_met,awards_won','avg_training_score','is_promoted','feedback'])
+    print(df2)
+    st.write(df2)
+
+page_names_to_funcs = {
+    "Main Page": main_page,
+    "Page 2": page2,
+    "Page 3": page3,
+}
+
+selected_page = st.sidebar.selectbox("Select a page", page_names_to_funcs.keys())
+page_names_to_funcs[selected_page]()
+
+
 
 conn.commit()
 conn.close()
