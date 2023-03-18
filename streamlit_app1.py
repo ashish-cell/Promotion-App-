@@ -211,16 +211,27 @@ def main_page():
     # Add a text input
         employee_id = st.text_input(label='Enter your employee_id : ')
 
-        department = st.text_input(label='Enter your department : ')
+        department = st.radio(label='Select your department', options=['Sales & Marketing', 'Operations', 'Technology', 'Analytics',
+       'R&D', 'Procurement', 'Finance', 'HR', 'Legal'])
+        # st.text_input(label='Enter your department : ')
 
-        region = st.text_input(label='Enter your region : ')
+        region = st.radio(label='Select your region', options= ['region_7', 'region_22', 'region_19', 'region_23', 'region_26',
+       'region_2', 'region_20', 'region_34', 'region_1', 'region_4',
+       'region_29', 'region_31', 'region_15', 'region_14', 'region_11',
+       'region_5', 'region_28', 'region_17', 'region_13', 'region_16',
+       'region_25', 'region_10', 'region_27', 'region_30', 'region_12',
+       'region_21', 'region_8', 'region_32', 'region_6', 'region_33',
+       'region_24', 'region_3', 'region_9', 'region_18'])
+        # st.text_input(label='Enter your region : ')
 
-        education = st.text_input(label='Enter your education qualifications : ')
+        education = st.radio(label='Select your education level', options= ["Master's & above", "Bachelor's", np.nan, 'Below Secondary'])
+        # st.text_input(label='Enter your education qualifications : ')
 
         # Add a radio button input
         gender = st.radio(label='Select your gender', options=['m', 'f',])
 
-        recruitment_channel = st.text_input(label='Enter the recruitment channel : ')
+        recruitment_channel = st.radio(label='Select your recruitment channel', options= ['sourcing', 'other', 'referred'])
+        # st.text_input(label='Enter the recruitment channel : ')
 
         no_of_trainings = st.number_input('Enter the no of trainings : ', min_value=0.0, max_value=10.0, value=1.0, step=1.0)
 
@@ -250,7 +261,7 @@ def main_page():
         st.write(p)
         st.write(' Thank You !')
         addData(employee_id ,department,region, education,gender, recruitment_channel, no_of_trainings, age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,p)
-            
+           
     # conn = sqlite3.connect('data.db',check_same_thread=False)
     # SQL_Query = pd.read_sql_query(
     #         '''select
@@ -311,6 +322,7 @@ def page3():
     train_accuracy = accuracy_score(df_no_duplicates['actual_output'], df_no_duplicates['is_promoted'])
     st.write('Accuracy is : ')
     st.write(train_accuracy)
+
 page_names_to_funcs = {
     "Main Page": main_page,
     "Page 2": page2,
@@ -319,8 +331,6 @@ page_names_to_funcs = {
 
 selected_page = st.sidebar.selectbox("Select a page", page_names_to_funcs.keys())
 page_names_to_funcs[selected_page]()
-
-
 
 conn.commit()
 conn.close()
