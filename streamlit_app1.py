@@ -299,7 +299,7 @@ def page2():
 
 
 def page3():
-    st.markdown("# Monitioring Page")
+    st.markdown("# Monitoring Page")
     st.sidebar.markdown("# Page 3 ")
     st.write('Actual data : ')
     SQL_Query1 = pd.read_sql_query(
