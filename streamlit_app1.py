@@ -19,7 +19,11 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve, confusion_matrix
 from sklearn.model_selection import train_test_split
 import sqlite3
+from sklearn.metrics import f1_score,confusion_matrix
 import csv
+import matplotlib.pyplot as plt
+# from sklearn.metrics import plot_confusion_matrix
+
 
 conn = sqlite3.connect('data.db',check_same_thread=False)
 cur = conn.cursor()
@@ -30,24 +34,24 @@ cur.execute("""create table if not exists result_form(employee_id text(10),actua
 conn.commit()
 
 def addData(employee_id,department,region,education,gender,recruitment_channel,no_of_trainings,age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,is_promoted):
-	# cur.execute("""create table if not exists app_form(employee_id text(10),department text(20),region text(20),education text(20),gender text(1),recruitment_channel text(20),
+    # cur.execute("""create table if not exists app_form(employee_id text(10),department text(20),region text(20),education text(20),gender text(1),recruitment_channel text(20),
     # no_of_trainings int, age int, previous_year_rating int,length_of_service int, KPIs_met int,awards_won int, avg_training_score int,is_promoted int,feedback text(5));""")
-	# st.write("""create table if not exists clg_form(name text(10),q1 text(10),q2 text(10),q3 text(10),q4 text(10),q5 text(10));""")
-	# st.write("INSERT INTO clg_form values"+str((name,a[0],b[0],c[0],d[0],e[0])))
-	cur.execute("INSERT INTO app_form values"+str((employee_id,department,region,education,gender,recruitment_channel,no_of_trainings,age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,is_promoted))+';')
-	conn.commit()
-	st.success('Successfully submitted')
+    # st.write("""create table if not exists clg_form(name text(10),q1 text(10),q2 text(10),q3 text(10),q4 text(10),q5 text(10));""")
+    # st.write("INSERT INTO clg_form values"+str((name,a[0],b[0],c[0],d[0],e[0])))
+    cur.execute("INSERT INTO app_form values"+str((employee_id,department,region,education,gender,recruitment_channel,no_of_trainings,age,previous_year_rating,length_of_service,KPIs_met,awards_won,avg_training_score,is_promoted))+';')
+    conn.commit()
+    st.success('Successfully submitted')
 
 
         
 def addData2(employee_id,actual_output):
-	# cur.execute("""create table if not exists app_form(employee_id text(10),department text(20),region text(20),education text(20),gender text(1),recruitment_channel text(20),
+    # cur.execute("""create table if not exists app_form(employee_id text(10),department text(20),region text(20),education text(20),gender text(1),recruitment_channel text(20),
     # no_of_trainings int, age int, previous_year_rating int,length_of_service int, KPIs_met int,awards_won int, avg_training_score int,is_promoted int,feedback text(5));""")
-	# st.write("""create table if not exists clg_form(name text(10),q1 text(10),q2 text(10),q3 text(10),q4 text(10),q5 text(10));""")
-	# st.write("INSERT INTO clg_form values"+str((name,a[0],b[0],c[0],d[0],e[0])))
-	cur.execute("INSERT INTO result_form values"+str((employee_id,actual_output))+';')
-	conn.commit()
-	st.success('Successfully submitted')
+    # st.write("""create table if not exists clg_form(name text(10),q1 text(10),q2 text(10),q3 text(10),q4 text(10),q5 text(10));""")
+    # st.write("INSERT INTO clg_form values"+str((name,a[0],b[0],c[0],d[0],e[0])))
+    cur.execute("INSERT INTO result_form values"+str((employee_id,actual_output))+';')
+    conn.commit()
+    st.success('Successfully submitted')
 
 
 # from autoviz.AutoViz_Class import AutoViz_Class
@@ -318,10 +322,32 @@ def page3():
     st.write(df2)
     merged_df = pd.merge(df, df2, on=['employee_id'])
     df_no_duplicates = merged_df.drop_duplicates()
+    
+    dropdown = st.radio(label='select one column to perform groupby on : ', options= ['department','region','education','recruitment_channel','gender'])
+    
+    # if dropdown == 'department':
+
+    # if dropdown == 'region':
+    # if dropdown == 'education':
+    # if dropdown == 'recruitment_channel'
+    stri = ' '
+    if dropdown == 'gender':
+        mini_drop = st.radio(label='Select a subcategory', options= df_no_duplicates['gender'].unique())
+        stri = mini_drop
+    st.write(stri)
+    
     st.write(df_no_duplicates)
-    train_accuracy = accuracy_score(df_no_duplicates['actual_output'], df_no_duplicates['is_promoted'])
-    st.write('Accuracy is : ')
-    st.write(train_accuracy)
+    if st.button('Click me!'):
+        new_df = df_no_duplicates[df_no_duplicates[dropdown]== stri]
+        st.write(new_df)
+    # st.write(new_df)
+        train_accuracy = accuracy_score(new_df['actual_output'], new_df['is_promoted'])
+        st.write('Accuracy is : ')
+        st.write(train_accuracy)
+        f1 = f1_score(new_df['actual_output'], new_df['is_promoted'])
+        st.write('F1 score:', f1)
+        cm = confusion_matrix(new_df['actual_output'], new_df['is_promoted'])
+        st.write('confusion matrix : ', cm)
 
 page_names_to_funcs = {
     "Main Page": main_page,
@@ -334,4 +360,5 @@ page_names_to_funcs[selected_page]()
 
 conn.commit()
 conn.close()
+
 
