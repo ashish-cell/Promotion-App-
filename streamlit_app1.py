@@ -331,9 +331,9 @@ def page3():
     # if dropdown == 'education':
     # if dropdown == 'recruitment_channel'
     stri = ' '
-    if dropdown == 'gender':
-        mini_drop = st.radio(label='Select a subcategory', options= df_no_duplicates['gender'].unique())
-        stri = mini_drop
+    
+    mini_drop = st.radio(label='Select a subcategory', options= df_no_duplicates[dropdown].unique())
+    stri = mini_drop
     st.write(stri)
     
     st.write(df_no_duplicates)
@@ -360,5 +360,4 @@ page_names_to_funcs[selected_page]()
 
 conn.commit()
 conn.close()
-
 
