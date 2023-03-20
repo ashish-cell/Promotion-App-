@@ -323,16 +323,18 @@ def page3():
     merged_df = pd.merge(df, df2, on=['employee_id'])
     df_no_duplicates = merged_df.drop_duplicates()
     
-    dropdown = st.radio(label='select one column to perform groupby on : ', options= ['department','region','education','recruitment_channel','gender'])
+    dropdown = st.radio(label='select one main category : ', options= ['department','region','education','recruitment_channel','gender'])
     
     # if dropdown == 'department':
 
     # if dropdown == 'region':
     # if dropdown == 'education':
     # if dropdown == 'recruitment_channel'
+    df_huge = pd.read_csv("https://raw.githubusercontent.com/ashish-cell/BADM-211-FA21/main/Data/HR_Promote.csv")
+
     stri = ' '
     
-    mini_drop = st.radio(label='Select a subcategory', options= df_no_duplicates[dropdown].unique())
+    mini_drop = st.radio(label='Select a subcategory : ', options= df_huge[dropdown].unique())
     stri = mini_drop
     st.write(stri)
     
